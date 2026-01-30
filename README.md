@@ -38,13 +38,13 @@ All functionality is exposed through a `Workplane` subclass of `cadquery.Workpla
 Requires Python >= 3.11.
 
 ```sh
-uv add tcqt
+uv add git+https://github.com/t-kozak/tcqt
 ```
 
 Or from source:
 
 ```sh
-git clone <repo-url>
+git clone https://github.com/t-kozak/tcqt.git
 cd tcqt
 uv sync
 ```
