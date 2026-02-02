@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .workplane import Workplane
+    from ..workplane import Workplane
 
 
 def parabolic_channel(

@@ -3,11 +3,13 @@ import cadquery as cq
 _ocp_show = None
 
 try:
-    from cadquery.vis import show as ocp_show
+    from ocp_vscode import show as ocp_show
 
     _ocp_show = ocp_show
 except ImportError:
-    pass
+    from cadquery.vis import show as ocp_show
+
+    _ocp_show = ocp_show
 
 
 def show(itm: cq.Workplane | cq.Assembly, show_coords: bool = False):

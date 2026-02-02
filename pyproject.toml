@@ -14,7 +14,8 @@ dependencies = [
 [dependency-groups]
 dev = [
     "vtk",
-    "tqdm"
+    "tqdm",
+    "ocp_vscode"
 ]
 
 

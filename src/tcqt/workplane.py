@@ -15,9 +15,8 @@ from typing import (
 
 import cadquery as cq
 
-from . import align, parabolic, teardrop
-
-__all__ = ["align"]
+if TYPE_CHECKING:
+    from .transforms.align import Alignment
 
 _log = logging.getLogger(__name__)
 
@@ -36,6 +35,8 @@ class Workplane(cq.Workplane):
     def teardrop(
         self, radius: float = 1, rotate: float = 0, clip: float | None = None
     ) -> Self:
+        from .primitives import teardrop
+
         return cast(Self, teardrop.teardrop(self, radius, rotate, clip))
 
     def texture(self, details: "Texture", cache_key: str | None = None) -> Self:
@@ -67,6 +68,8 @@ class Workplane(cq.Workplane):
         side_thickness=10.0,
         top_thickness=10.0,
     ) -> Self:
+        from .primitives import parabolic
+
         return cast(
             Self,
             parabolic.parabolic_channel(
@@ -155,7 +158,7 @@ class Workplane(cq.Workplane):
         return super().export(fname, tolerance, angularTolerance, opt)
 
     def rrect(self, width: float, height: float, radius: float, center: bool = True):
-        from geom import rrect
+        from primitives.geom import rrect
 
         return rrect(self, width, height, radius, center)
 
@@ -167,6 +170,8 @@ class Workplane(cq.Workplane):
     def aligned(
         self,
         other: Self,
-        alignment: tuple[align.Alignment, align.Alignment, align.Alignment],
+        alignment: tuple["Alignment", "Alignment", "Alignment"],
     ) -> Self:
+        from . import align
+
         return cast(Self, align.align_to(self, other, alignment))
