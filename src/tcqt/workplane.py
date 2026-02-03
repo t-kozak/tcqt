@@ -158,7 +158,7 @@ class Workplane(cq.Workplane):
         return super().export(fname, tolerance, angularTolerance, opt)
 
     def rrect(self, width: float, height: float, radius: float, center: bool = True):
-        from primitives.geom import rrect
+        from .primitives.geom import rrect
 
         return rrect(self, width, height, radius, center)
 
