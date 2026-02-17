@@ -1,18 +1,32 @@
 import abc
+from typing import TYPE_CHECKING
 
 from cadquery import Face, Plane
 
-from dtools.workplane import Workplane
+if TYPE_CHECKING:
+    from ..workplane import Workplane
 
 
 class Texture(abc.ABC):
-    pass
-
     @abc.abstractmethod
-    def _create_for_face(self, face: Face) -> Workplane:
+    def _create_for_face(self, face: Face) -> "Workplane":
         raise NotImplementedError("This should be implemented in subclasses")
 
-    def _wp_for_face(self, face: Face) -> Workplane:
+    def _create_for_faces(self, faces: list[Face]) -> "Workplane":
+        """Create texture geometry for a collection of faces.
+
+        Subclasses that need multi-face coordination (e.g., box continuity)
+        should override this method. The default implementation calls
+        _create_for_face for each face individually.
+        """
+        from ..workplane import Workplane
+
+        all_geometry = Workplane()
+        for face in faces:
+            all_geometry += self._create_for_face(face)
+        return all_geometry
+
+    def _wp_for_face(self, face: Face) -> "Workplane":
         """Create a workplane aligned with the face.
 
         The workplane will be positioned at the face center with its normal
@@ -32,9 +46,11 @@ class Texture(abc.ABC):
         plane = Plane(origin=center, normal=normal)
 
         # Create workplane from the plane
+        from ..workplane import Workplane
+
         return Workplane(plane)
 
-    def _wire_edge(self, face: Face, height: float, thickness: float) -> Workplane:
+    def _wire_edge(self, face: Face, height: float, thickness: float) -> "Workplane":
         """Create an inward-facing wall along the face's wire boundary.
 
         Args:
@@ -67,8 +83,8 @@ class Texture(abc.ABC):
         return outer_solid.cut(inner_solid)
 
     def _cut_to_face_boundary(
-        self, face: Face, texture: Workplane, height: float
-    ) -> Workplane:
+        self, face: Face, texture: "Workplane", height: float
+    ) -> "Workplane":
         """Cut the texture workplane to match the face boundary.
 
         Args:

@@ -6,9 +6,8 @@ import random
 from dataclasses import dataclass
 
 import cadquery as cq
-from dev_tools import tqdm
-from stopwatch import Stopwatch
 
+from ..dev_tools import tqdm
 from ..transforms.merge import merge_shapes_in_batches_threaded
 from ..workplane import Workplane
 from .tex_details import Texture
@@ -358,8 +357,6 @@ def _create_height_groups(
     _log.debug(f"Will generate {hex_count} hexagons")
 
     # Start timing hexagon generation
-    generation_timer = Stopwatch()
-    generation_timer.start()
     # Now actually generate the hexagons
     for row in range(rows):
         for col in range(cols):
@@ -406,9 +403,6 @@ def _create_height_groups(
                 height_groups[discretized_height].append((world_pos, local_x, local_y))
 
     # Log hexagon generation timing
-    _log.debug(
-        f"Hexagon generation completed in {generation_timer.elapsed:.2f} seconds"
-    )
 
     return height_groups
 
@@ -544,16 +538,9 @@ def _generate_surface_from_height_groups(
     )
 
     # Start timing the merge operation
-    merge_timer = Stopwatch()
-    merge_timer.start()
     result = merge_shapes_in_batches_threaded(
         all_hex_shapes, show_progress=show_progress
     )
-
-    # Log merge timing
-    merge_time = merge_timer.elapsed
-
-    _log.debug(f"Merge operation completed in {merge_time:.2f} seconds")
 
     # Save result to cache
     if result is not None:
@@ -627,28 +614,3 @@ def _generate_hex_texture_for_face(
         return None
     _log.debug("Generating hex texture for face... done.")
     return result, u_vec, v_vec
-
-
-if __name__ == "__main__":
-    from ocp_vscode import show
-
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format="%(asctime)s - %(levelname)s - %(message)s (%(name)s)",
-        datefmt="%H:%M:%S",
-    )
-    with Stopwatch() as x:
-        _log.info("Starting HexTest example")
-
-        result = Workplane("XY").box(150, 150, 25)
-        result = (
-            result.edges("|Z")
-            .fillet(5)
-            .faces(">Z")
-            .texture(
-                HoneycombTexture(hex_side_len=40, hex_height_min=1, hex_height_max=10),
-            )
-        )
-
-        show(result)
-        _log.info(f"HexTest example completed in {x.elapsed:.2f} seconds")

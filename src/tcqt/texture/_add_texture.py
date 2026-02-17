@@ -1,15 +1,20 @@
 import logging
+from typing import TYPE_CHECKING, cast
 
 from cadquery import Face
 
-from dtools.primitives.cache import read_from_cache, write_to_cache
-from dtools.texture.tex_details import Texture
-from dtools.workplane import Workplane
+from ..cache import read_from_cache, write_to_cache
+from .tex_details import Texture
 
+if TYPE_CHECKING:
+    from ..workplane import Workplane
 _log = logging.getLogger(__name__)
 
 
-def add_texture(workplane: Workplane, details: Texture, cache_key: str | None = None):
+def add_texture(
+    workplane: "Workplane", details: Texture, cache_key: str | None = None
+) -> "Workplane":
+
     # Try to read from cache first
     cached_texture = read_from_cache(cache_key)
     if cached_texture is not None:
@@ -20,7 +25,8 @@ def add_texture(workplane: Workplane, details: Texture, cache_key: str | None = 
     selected_faces = workplane.faces().vals()
 
     if len(selected_faces) > 0:
-        faces_to_texture = selected_faces
+        assert all(isinstance(f, Face) for f in selected_faces)
+        faces_to_texture = cast(list[Face], selected_faces)
     else:
         # No selection - get all faces
         try:
@@ -29,17 +35,8 @@ def add_texture(workplane: Workplane, details: Texture, cache_key: str | None = 
         except Exception as e:
             raise ValueError("Workplane contains no solid") from e
 
-    # Accumulate all texture geometry
-    all_texture_geometry = Workplane()
-
-    # Process each face
-    for face in faces_to_texture:
-        assert isinstance(face, Face)
-        # Apply texture (your implementation)
-        texture_geometry = details._create_for_face(face)
-
-        # Accumulate texture geometry
-        all_texture_geometry += texture_geometry
+    # Process all faces through the texture (allows multi-face coordination)
+    all_texture_geometry = details._create_for_faces(list(faces_to_texture))
 
     # Write to cache if cache_key is provided
     write_to_cache(cache_key, all_texture_geometry)

@@ -1,10 +1,13 @@
 import math
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-from cadquery import Assembly, Face, Location
+from cadquery import Face
 
-from dtools.texture.tex_details import Texture
-from dtools.workplane import Workplane
+from .tex_details import Texture
+
+if TYPE_CHECKING:
+    from ..workplane import Workplane
 
 
 @dataclass
@@ -14,7 +17,7 @@ class LinearTexture(Texture):
     angle_deg: float = 45.0
     height: float = 3.0
 
-    def _create_for_face(self, face: Face) -> Workplane:
+    def _create_for_face(self, face: Face) -> "Workplane":
         bbox = face.BoundingBox()
 
         # Calculate the diagonal length needed to cover the rotated bounding box
@@ -44,21 +47,3 @@ class LinearTexture(Texture):
         wplane = self._cut_to_face_boundary(face, wplane, self.height)
 
         return wplane
-
-
-if __name__ == "__main__":
-    from ocp_vscode import show
-
-    from ._add_texture import add_texture
-
-    box = Workplane("XY").box(30, 30, 30).texture(LinearTexture(angle_deg=12.4))
-
-    box = add_texture(box, LinearTexture(angle_deg=12.4))
-    cylinder = (
-        Workplane("XY").circle(30).extrude(30).faces("|Z").texture(LinearTexture())
-    )
-
-    ass = Assembly()
-    ass.add(box)
-    ass.add(cylinder, loc=Location((40, 40, 0)))
-    show(ass)
