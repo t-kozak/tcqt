@@ -2,6 +2,7 @@ from ._add_texture import add_texture
 from .brick import BrickTexture
 from .hex import HoneycombTexture
 from .linear import LinearTexture
+from .rooftop import RooftopTileTexture
 from .tex_details import Texture
 
 __all__ = [
@@ -10,4 +11,5 @@ __all__ = [
     "BrickTexture",
     "HoneycombTexture",
     "LinearTexture",
+    "RooftopTileTexture",
 ]
