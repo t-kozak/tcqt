@@ -71,5 +71,5 @@ class Selectors:
         return FacesAtAngleSelector(angle, tolerance)
 
     @staticmethod
-    def outer(wp: Workplane) -> Selector:
+    def outer(wp: "Workplane") -> Selector:
         return OuterFaceSelector(wp)
