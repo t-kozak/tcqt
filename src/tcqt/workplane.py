@@ -39,11 +39,14 @@ class Workplane(cq.Workplane):
 
         return cast(Self, teardrop.teardrop(self, radius, rotate, clip))
 
-    def texture(self, details: "Texture", cache_key: str | None = None) -> Self:
+    def texture(
+        self, details: "Texture", cache_key: str | None = None, cut: bool = False
+    ) -> Self:
         # Import here to avoid circular import
-        from .texture import add_texture
+        from .texture import add_texture, cut_texture
 
-        return cast(Self, add_texture(self, details, cache_key))
+        fn = cut_texture if cut else add_texture
+        return cast(Self, fn(self, details, cache_key))
 
     def polar_move_to(self, phi: float, r: float, relative: bool = False) -> Self:
         # Convert polar coordinates to Cartesian

@@ -26,6 +26,17 @@ class Texture(abc.ABC):
             all_geometry += self._create_for_face(face)
         return all_geometry
 
+    def _cut_for_faces(self, faces: list[Face]) -> "Workplane":
+        """Create subtractive texture geometry for a collection of faces.
+
+        Subclasses that support subtractive texturing should override this
+        method to return the geometry that will be cut from the solid.
+        """
+        raise NotImplementedError(
+            "This texture does not support subtractive mode. "
+            "Implement _cut_for_faces in the subclass."
+        )
+
     def _wp_for_face(self, face: Face) -> "Workplane":
         """Create a workplane aligned with the face.
 

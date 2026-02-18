@@ -1,7 +1,29 @@
 import math
-from typing import List, Sequence
+from typing import TYPE_CHECKING, List, Sequence
 
+import cadquery as cq
 from cadquery.selectors import Selector
+
+if TYPE_CHECKING:
+    from .workplane import Workplane
+
+
+class OuterFaceSelector(Selector):
+    def __init__(self, wp: "Workplane"):
+        bb = wp.get_bbox()
+        self.center = cq.Vector(
+            (bb.xmin + bb.xmax) / 2, (bb.ymin + bb.ymax) / 2, (bb.zmin + bb.zmax) / 2
+        )
+
+    def filter(self, objectList):
+        outer = []
+        for face in objectList:
+            fc = face.Center()
+            normal = face.normalAt(fc)
+            to_center = self.center - fc
+            if normal.dot(to_center) < 0:
+                outer.append(face)
+        return outer
 
 
 class FacesAtAngleSelector(Selector):
@@ -47,3 +69,7 @@ class Selectors:
     @staticmethod
     def faces_at_angle(angle: float, tolerance: float = 5.0) -> Selector:
         return FacesAtAngleSelector(angle, tolerance)
+
+    @staticmethod
+    def outer(wp: Workplane) -> Selector:
+        return OuterFaceSelector(wp)
