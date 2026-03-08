@@ -80,7 +80,9 @@ def cut_texture(
         tg_bbox = texture_geometry.findSolid().BoundingBox()
         _log.debug(
             "cut_texture: mortar geometry bbox xlen=%.3f ylen=%.3f zlen=%.3f",
-            tg_bbox.xlen, tg_bbox.ylen, tg_bbox.zlen,
+            tg_bbox.xlen,
+            tg_bbox.ylen,
+            tg_bbox.zlen,
         )
     except Exception:
         _log.debug("cut_texture: could not compute mortar geometry bbox")
