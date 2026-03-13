@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Literal
 
+import cadquery as cq
+
 if TYPE_CHECKING:
     from ..workplane import Workplane
 
@@ -132,9 +134,22 @@ def move_center_to(workplane: "Workplane", loc: tuple[float, ...]) -> "Workplane
     return workplane.translate((dx, dy, dz))
 
 
+def get_bbox(item: "Workplane|cq.Solid|cq.BoundBox|cq.Compound") -> cq.BoundBox:
+    from ..workplane import Workplane
+
+    if isinstance(item, cq.BoundBox):
+        return item
+
+    if isinstance(item, Workplane):
+        return item.get_bbox()
+
+    if isinstance(item, cq.Solid) or isinstance(item, cq.Compound):
+        return item.BoundingBox()
+
+
 def align_to(
     wp: "Workplane",
-    location_src: "Workplane",
+    ref: "Workplane|cq.Solid|cq.BoundBox|cq.Compound",
     alignment: tuple[
         Alignment | None,
         Alignment | None,
@@ -161,36 +176,37 @@ def align_to(
         aligned = align_to(wp, reference, alignment=("center", "start", None))
     """
     wp_bbox = wp.get_bbox()
-    src_bbox = location_src.get_bbox()
+
+    ref_bbox = get_bbox(ref)
 
     dx, dy, dz = 0.0, 0.0, 0.0
 
     # Calculate translation for X axis
     if alignment[0] is not None:
         if alignment[0] == "start":
-            dx = src_bbox.xmin - wp_bbox.xmin
+            dx = ref_bbox.xmin - wp_bbox.xmin
         elif alignment[0] == "end":
-            dx = src_bbox.xmax - wp_bbox.xmax
+            dx = ref_bbox.xmax - wp_bbox.xmax
         elif alignment[0] == "center":
-            dx = src_bbox.center.x - wp_bbox.center.x
+            dx = ref_bbox.center.x - wp_bbox.center.x
 
     # Calculate translation for Y axis
     if alignment[1] is not None:
         if alignment[1] == "start":
-            dy = src_bbox.ymin - wp_bbox.ymin
+            dy = ref_bbox.ymin - wp_bbox.ymin
         elif alignment[1] == "end":
-            dy = src_bbox.ymax - wp_bbox.ymax
+            dy = ref_bbox.ymax - wp_bbox.ymax
         elif alignment[1] == "center":
-            dy = src_bbox.center.y - wp_bbox.center.y
+            dy = ref_bbox.center.y - wp_bbox.center.y
 
     # Calculate translation for Z axis
     if alignment[2] is not None:
         if alignment[2] == "start":
-            dz = src_bbox.zmin - wp_bbox.zmin
+            dz = ref_bbox.zmin - wp_bbox.zmin
         elif alignment[2] == "end":
-            dz = src_bbox.zmax - wp_bbox.zmax
+            dz = ref_bbox.zmax - wp_bbox.zmax
         elif alignment[2] == "center":
-            dz = src_bbox.center.z - wp_bbox.center.z
+            dz = ref_bbox.center.z - wp_bbox.center.z
 
     # Apply translation
     return wp.translate((dx, dy, dz))

@@ -178,7 +178,7 @@ wheels = [
 
 [[package]]
 name = "cadquery"
-version = "2.6.1"
+version = "2.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cadquery-ocp" },
@@ -187,13 +187,16 @@ dependencies = [
     { name = "multimethod" },
     { name = "nlopt" },
     { name = "path" },
+    { name = "pyparsing" },
+    { name = "runtype" },
     { name = "trame" },
+    { name = "trame-components" },
     { name = "trame-vtk" },
-    { name = "typish" },
+    { name = "trame-vuetify" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c1/03/6fb5f4f980c791c20ced03d265eeab1339cdf91986eb5a8224992855c8c7/cadquery-2.6.1.tar.gz", hash = "sha256:285ec7d6b290d326b291daa024f79265604eff82beec024c46b6378a8396fa4b", size = 264955, upload-time = "2025-10-28T20:05:32.548Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/03/c7/23e200821c307b7765661f19494edea93aa3ae9d28fee0db72ab20448855/cadquery-2.7.0.tar.gz", hash = "sha256:224e7d861c018bedd9e77b9727bc2a86b086f630596124d13ccc8a92b2151ee6", size = 270261, upload-time = "2026-02-13T16:50:47.701Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/bd/48/3beda36afdc025679d727e52e7e37eb0b0c6c90e684d566419f49c972fd2/cadquery-2.6.1-py3-none-any.whl", hash = "sha256:b3e476bd34553015e1ac7f019b288a48422821b67611f6d94f9fa0b4b1049d0c", size = 179855, upload-time = "2025-10-28T20:05:31.039Z" },
+    { url = "https://files.pythonhosted.org/packages/85/46/2544f1d16a912770ecfed25602a273ab0ad4648838decf974781a8f83b78/cadquery-2.7.0-py3-none-any.whl", hash = "sha256:13bdffe3a1c9a7b29d86d43313021173b1620f45223929d2631cf8d4c5dbe2c0", size = 182553, upload-time = "2026-02-13T16:50:46.085Z" },
 ]
 
 [[package]]
@@ -2096,6 +2099,15 @@ wheels = [
 ]
 
 [[package]]
+name = "runtype"
+version = "0.5.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/60/76/d8a0f754c834c3d71a0896b1d40a1938244aab4bb5b4bab0b21d21525694/runtype-0.5.3.tar.gz", hash = "sha256:ccaec05c74f8d213342b9fc25e304560d114bc4d72ec117639cd1e7af9c5db1f", size = 30223, upload-time = "2025-03-03T08:39:00.081Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/80/db/879902580d720925092c86eaab2ceee7493e2fadbb5b718f54289b04d277/runtype-0.5.3-py3-none-any.whl", hash = "sha256:ea8cc6828217ebfda5c159dce969e832efd865a09d6ad1fc993f5bf5e1a627ee", size = 31944, upload-time = "2025-03-03T08:38:58.329Z" },
+]
+
+[[package]]
 name = "simple-websocket"
 version = "1.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2149,7 +2161,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cadquery", specifier = ">=2.5.2" },
+    { name = "cadquery", specifier = ">=2.7.0" },
     { name = "numpy", specifier = ">=1.24.0" },
     { name = "numpy-stl", specifier = ">=3.2.0" },
 ]
@@ -2239,6 +2251,18 @@ wheels = [
 ]
 
 [[package]]
+name = "trame-components"
+version = "2.5.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "trame-client" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/82/47/d773f35615c22553a7547b4336af62e412548ec3607626fa3db128f30460/trame-components-2.5.0.tar.gz", hash = "sha256:df7a1d387b98c5dd71699737804f5288957ca370eb1a60bbe40e89a1f9f62b12", size = 81972, upload-time = "2025-05-30T14:21:36.718Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/02/e9/627ebbf56e00d80300940e8bbf54c6594f98fd214e3565b3abaa5450e0d4/trame_components-2.5.0-py3-none-any.whl", hash = "sha256:897a6c0ebcc72d95a461bde28d2c2e37c4bc4922013ad07df3a65e64d4884672", size = 82345, upload-time = "2025-05-30T14:21:35.526Z" },
+]
+
+[[package]]
 name = "trame-server"
 version = "3.10.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2264,20 +2288,24 @@ wheels = [
 ]
 
 [[package]]
+name = "trame-vuetify"
+version = "3.2.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "trame-client" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/91/15/f45c0b63a1fb5696c531dbd43e8b698225b43c0a71939ee5165581e3f217/trame_vuetify-3.2.1.tar.gz", hash = "sha256:1578904a8fc5313ba8033076ea2d9338a050a26c68ceebb207fb6b15e18c0a45", size = 5107294, upload-time = "2026-02-02T17:07:59.366Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ec/73/08e61712de488fddca38bced13968f2c0fc74bc16e1034c21254246e8528/trame_vuetify-3.2.1-py3-none-any.whl", hash = "sha256:45239b9972bcfb8f121487efe7f537c0dc44174a87535bbd2131a9c86e4053bf", size = 5134606, upload-time = "2026-02-02T17:07:57.609Z" },
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.15.0"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/72/94/1a15dd82efb362ac84269196e94cf00f187f7ed21c242792a923cdb1c61f/typing_extensions-4.15.0.tar.gz", hash = "sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466", size = 109391, upload-time = "2025-08-25T13:49:26.313Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/18/67/36e9267722cc04a6b9f15c7f3441c2363321a3ea07da7ae0c0707beb2a9c/typing_extensions-4.15.0-py3-none-any.whl", hash = "sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548", size = 44614, upload-time = "2025-08-25T13:49:24.86Z" },
-]
-
-[[package]]
-name = "typish"
-version = "1.9.3"
-source = { registry = "https://pypi.org/simple" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/9d/d6/3f56c9c0c12adf61dfcf4ed5c8ffd2c431db8dd85592067a57e8e1968565/typish-1.9.3-py3-none-any.whl", hash = "sha256:03cfee5e6eb856dbf90244e18f4e4c41044c8790d5779f4e775f63f982e2f896", size = 45063, upload-time = "2021-08-05T20:36:28.702Z" },
 ]
 
 [[package]]

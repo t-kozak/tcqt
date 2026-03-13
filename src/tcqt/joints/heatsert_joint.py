@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING, Literal, override
 
 import cadquery as cq
 
-from ..screws import Screw
-from ..washers import Washer
+from ..primitives.screws import Screw
+from ..primitives.washers import Washer
 from .joint import Joint, JointFaceSelector
 
 if TYPE_CHECKING:

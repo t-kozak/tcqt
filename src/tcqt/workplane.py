@@ -172,9 +172,12 @@ class Workplane(cq.Workplane):
 
     def aligned(
         self,
-        other: Self,
+        ref: "Self|cq.Solid|cq.BoundBox|cq.Compound",
         alignment: tuple["Alignment", "Alignment", "Alignment"],
     ) -> Self:
         from . import align
 
-        return cast(Self, align.align_to(self, other, alignment))
+        return cast(Self, align.align_to(self, ref, alignment))
+
+    def solid(self) -> cq.Solid:
+        return cast(cq.Solid, self.val())

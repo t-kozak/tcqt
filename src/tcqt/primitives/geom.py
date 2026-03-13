@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from cadquery import Sketch
 
 if TYPE_CHECKING:
-    from .workplane import Workplane
+    from ..workplane import Workplane
 
 
 def rrect(
@@ -17,7 +17,8 @@ def rrect(
         width: Width of the rectangle
         height: Height of the rectangle
         radius: Corner radius
-        center: If True, center the rectangle at current point. If False, start from bottom-left corner.
+        center: If True, center the rectangle at current point. If False, start from
+                bottom-left corner.
 
     Returns:
         Workplane with the rounded rectangle wire
