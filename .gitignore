@@ -22,3 +22,4 @@ wheels/
 *.obj
 *.step
 *.stl
+*.3mf

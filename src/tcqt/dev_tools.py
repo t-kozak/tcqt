@@ -1,5 +1,7 @@
 import cadquery as cq
 
+from tcqt.assembly.assembly import Assembly
+
 _ocp_show = None
 
 try:
@@ -12,7 +14,7 @@ except ImportError:
     _ocp_show = ocp_show
 
 
-def show(itm: cq.Workplane | cq.Assembly | cq.Solid):
+def show(itm: cq.Workplane | cq.Assembly | cq.Solid | Assembly):
     try:
         from ocp_vscode import show as ocp_show
 
