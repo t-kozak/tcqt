@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal, cast
 
@@ -37,6 +38,22 @@ ExportLiterals = Literal[
     "STEP", "XML", "XBF", "VRML", "GLTF", "GLB", "VTKJS", "STL", "3mf"
 ]
 
+_MATERIAL_TOKEN = object()
+
+
+@dataclass(frozen=True)
+class Material:
+    id: int
+    color: str
+    type: str
+    _token: object = field(default=None, repr=False, compare=False)
+
+    def __post_init__(self):
+        if self._token is not _MATERIAL_TOKEN:
+            raise TypeError(
+                "_Material cannot be instantiated directly; use Assembly.add_material()"
+            )
+
 
 class Assembly:
     def __init__(
@@ -56,6 +73,24 @@ class Assembly:
             material=material,
             metadata=metadata,
         )
+        self._materials: list[Material] = []
+
+    def add_material(self, colour: str, filament_type: str = "PLA") -> Material:
+        """Register a filament and return a handle for use with add().
+
+        colour: str
+            Hex color string in 'RRGGBB' or 'RRGGBBAA' format (optional '#').
+        filament_type: str
+            Filament type label shown in Bambu Studio (e.g. "PLA", "PETG", "TPU").
+        """
+        mat = Material(
+            id=len(self._materials) + 1,
+            color=colour,
+            type=filament_type,
+            _token=_MATERIAL_TOKEN,
+        )
+        self._materials.append(mat)
+        return mat
 
     def add(
         self,
@@ -63,7 +98,7 @@ class Assembly:
         name: str | None = None,
         color: Color | str | None = None,
         loc: Location | None = None,
-        material_id: int | None = None,
+        material: Material | None = None,
     ) -> "Assembly":
         """
         Add a shape or sub-assembly.
@@ -72,17 +107,19 @@ class Assembly:
             Color for this part. Accepts a Color instance or a hex string in
             'RRGGBB' or 'RRGGBBAA' format (optional leading '#').
 
-        material_id: int | None
-            Filament slot number (1-indexed) to assign this part in Bambu Studio.
-            Parts sharing the same material_id are grouped into the same filament
-            slot. None defaults to slot 1 at export time.
-            If arg is a sub-Assembly, material_id is inherited by all its leaf
-            parts that do not have their own explicit material_id.
+        material: _Material | None
+            Filament to assign this part, obtained from add_material(). Parts
+            sharing the same material are grouped into the same filament slot.
+            None defaults to slot 1 at export time.
+            If arg is a sub-Assembly, the material is inherited by all its leaf
+            parts that do not have their own explicit material.
         """
         cq_arg = arg._assy if isinstance(arg, Assembly) else arg
+        if color is None and material is not None:
+            color = material.color
         self._assy.add(cq_arg, name=name, color=_parse_color(color), loc=loc)
-        if material_id is not None:
-            self._assy.children[-1].metadata["material_id"] = material_id
+        if material is not None:
+            self._assy.children[-1].metadata["material_id"] = material.id
         return self
 
     def export(
@@ -93,8 +130,6 @@ class Assembly:
         tolerance: float = 0.1,
         angularTolerance: float = 0.1,
         default_material_id: int = 1,
-        filament_palette: dict[int, str] | None = None,
-        filament_types: dict[int, str] | None = None,
         unit: str = "millimeter",
         title: str | None = None,
     ) -> "Assembly":
@@ -105,17 +140,15 @@ class Assembly:
         ".3mf", the Bambu-compatible exporter is used automatically.
         All other export types are delegated to cq.Assembly.export() unchanged.
 
-        single_object: bool
-            3mf only. When True (default), wraps all parts in a single
-            top-level assembly object so Bambu Studio imports without a
-            dialog. When False, each part is an independent build item.
-
-        Extra kwargs for 3mf export: linear_deflection, angular_deflection.
+        Filament palette and types are built automatically from materials
+        registered via add_material().
         """
         use_bambu = exportType == "3mf" or (
             exportType is None and path.lower().endswith(".3mf")
         )
         if use_bambu:
+            filament_palette = {m.id: m.color for m in self._materials} or None
+            filament_types = {m.id: m.type for m in self._materials} or None
             export_bambu_3mf(
                 self._assy,
                 Path(path),

@@ -1,6 +1,7 @@
 import cadquery as cq
 
 from tcqt import Assembly, Workplane
+from tcqt.assembly.assembly import Material
 from tcqt.dev_tools import show
 
 box_size = 20
@@ -18,7 +19,10 @@ green = cq.Color("green")
 
 ass = Assembly()
 
-combs: list[tuple[tuple[float, float, float], float, cq.Color]] = [
+blue = ass.add_material("#0000FF")
+green = ass.add_material("#00FF00")
+
+combs: list[tuple[tuple[float, float, float], float, Material]] = [
     ((0, 0, 0), 0, blue),
     ((frag_size, 0, 0), 90, green),
     ((0, frag_size, 0), -90, green),
@@ -34,14 +38,11 @@ combs: list[tuple[tuple[float, float, float], float, cq.Color]] = [
 for i, config in enumerate(combs):
     ass.add(
         frag.translate(config[0]).rotate_center("Z", config[1]),
-        color=config[2],
         name=f"{i}",
-        material_id=1 if config[2] == blue else 2,
+        material=config[2],
     )
 show(ass)
 
 ass.export(
     "color_cube.3mf",
-    filament_palette={1: "#0000FF", 2: "#23BD3C"},
-    filament_types={1: "PET", 2: "TPU"},
 )
