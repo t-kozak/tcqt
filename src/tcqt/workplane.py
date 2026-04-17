@@ -16,7 +16,7 @@ from typing import (
 import cadquery as cq
 
 if TYPE_CHECKING:
-    from .transforms.align import Alignment
+    from .transforms.align import AlignmentInput
 
 _log = logging.getLogger(__name__)
 
@@ -173,7 +173,7 @@ class Workplane(cq.Workplane):
     def aligned(
         self,
         ref: "Self|cq.Solid|cq.BoundBox|cq.Compound",
-        alignment: tuple["Alignment", "Alignment", "Alignment"],
+        alignment: "AlignmentInput",
     ) -> Self:
         from . import align
 

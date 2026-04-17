@@ -5,36 +5,90 @@ import cadquery as cq
 if TYPE_CHECKING:
     from ..workplane import Workplane
 
-Alignment = Literal["start", "center", "end", "none"]
+Alignment = Literal["start", "center", "end", "none", "<", "|", ">", "x"]
+CanonicalAlignment = Literal["start", "center", "end", "none"]
+AlignmentInput = (
+    tuple[Alignment | None, Alignment | None, Alignment | None] | str
+)
+
+_ALIAS_MAP: dict[str, CanonicalAlignment | None] = {
+    "<": "start",
+    "|": "center",
+    ">": "end",
+    "x": None,
+}
+
+
+def parse_alignments(
+    alignments: AlignmentInput,
+) -> tuple[
+    CanonicalAlignment | None,
+    CanonicalAlignment | None,
+    CanonicalAlignment | None,
+]:
+    """Normalize an alignment input to a 3-tuple of canonical alignment values.
+
+    Accepts either a 3-character string (e.g. "<<<", "|||", "><x") or a tuple
+    of Alignment values / None. Returns a tuple of canonical values where aliases
+    are resolved and "no alignment" is represented as None.
+
+    String character mapping:
+        "<" → "start", "|" → "center", ">" → "end", "x" → None
+    """
+    if isinstance(alignments, str):
+        if len(alignments) != 3:
+            raise ValueError(
+                f"Alignment string must be exactly 3 characters, "
+                f"got {len(alignments)!r}: {alignments!r}"
+            )
+        result = []
+        for ch in alignments:
+            if ch not in _ALIAS_MAP:
+                raise ValueError(
+                    f"Unknown alignment character {ch!r}. "
+                    f"Valid characters: '<', '|', '>', 'x'"
+                )
+            result.append(_ALIAS_MAP[ch])
+        return (result[0], result[1], result[2])
+
+    canonical: list[CanonicalAlignment | None] = []
+    for a in alignments:
+        if a is None:
+            canonical.append(None)
+        elif a in _ALIAS_MAP:
+            canonical.append(_ALIAS_MAP[a])  # type: ignore[arg-type]
+        else:
+            canonical.append(a)  # type: ignore[arg-type]
+    return (canonical[0], canonical[1], canonical[2])
 
 
 def align(
     *workplanes: "Workplane",
-    alignments: tuple[
-        Alignment | None,
-        Alignment | None,
-        Alignment | None,
-    ],
+    alignments: AlignmentInput,
 ) -> tuple["Workplane", ...]:
     """
     Align multiple Workplanes based on the specified alignment type for each axis.
 
     Args:
         *workplanes: Variable number of Workplane objects to align
-        alignments: Tuple of alignment types for (X, Y, Z) axes.
-                   - "start": Align minimum bounding box values
-                   - "center": Align centers of bounding boxes
-                   - "end": Align maximum bounding box values
-                   - None: No alignment on this axis
+        alignments: Either a 3-character string ("<|>x") or a tuple of
+                   alignment types for (X, Y, Z) axes.
+                   - "start" / "<": Align minimum bounding box values
+                   - "center" / "|": Align centers of bounding boxes
+                   - "end" / ">": Align maximum bounding box values
+                   - None / "x": No alignment on this axis
 
     Returns:
         Tuple of aligned Workplane objects (same length as input)
 
     Example:
+        a, b, c = align(a, b, c, alignments="<<<")
         a, b, c = align(a, b, c, alignments=("center", None, None))
     """
     if not workplanes:
         return ()
+
+    alignments = parse_alignments(alignments)
 
     # Get bounding boxes for all workplanes
     bboxes = [wp.get_bbox() for wp in workplanes]
@@ -150,11 +204,7 @@ def get_bbox(item: "Workplane|cq.Solid|cq.BoundBox|cq.Compound") -> cq.BoundBox:
 def align_to(
     wp: "Workplane",
     ref: "Workplane|cq.Solid|cq.BoundBox|cq.Compound",
-    alignment: tuple[
-        Alignment | None,
-        Alignment | None,
-        Alignment | None,
-    ],
+    alignment: AlignmentInput,
 ) -> "Workplane":
     """
     Align a Workplane to match another Workplane's geometry based on
@@ -163,18 +213,22 @@ def align_to(
     Args:
         wp: The Workplane to align
         location_src: The reference Workplane to align to
-        alignment: Tuple of alignment types for (X, Y, Z) axes.
-                   - "start": Align to minimum bounding box value
-                   - "center": Align to center of bounding box
-                   - "end": Align to maximum bounding box value
-                   - None: No alignment on this axis
+        alignment: Either a 3-character string ("<|>x") or a tuple of
+                   alignment types for (X, Y, Z) axes.
+                   - "start" / "<": Align to minimum bounding box value
+                   - "center" / "|": Align to center of bounding box
+                   - "end" / ">": Align to maximum bounding box value
+                   - None / "x": No alignment on this axis
 
     Returns:
         Aligned Workplane object
 
     Example:
+        aligned = align_to(wp, reference, alignment="|<x")
         aligned = align_to(wp, reference, alignment=("center", "start", None))
     """
+    alignment = parse_alignments(alignment)
+
     wp_bbox = wp.get_bbox()
 
     ref_bbox = get_bbox(ref)
